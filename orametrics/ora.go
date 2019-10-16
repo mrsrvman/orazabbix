@@ -3,10 +3,12 @@ package orametrics
 import (
 	"database/sql"
 	//	"encoding/json"
-	_ "github.com/mattn/go-oci8"
-	"github.com/golang/glog"
-	"time"
+	"fmt"
 	"strconv"
+	"time"
+
+	"github.com/golang/glog"
+	_ "gopkg.in/rana/ora.v4"
 )
 
 type tsBytes struct {
@@ -21,34 +23,34 @@ type diskgroups struct {
 }
 
 type instance struct {
-	INST_ID          string `json:"INST_ID"`
-	INSTANCE_NUMBER  string `json:"INSTANCE_NUMBER"`
-	INSTANCE_NAME	 string `json:"INSTANCE_NAME"`
-	HOST_NAME        string `json:"HOST_NAME"`
-	VERSION          string `json:"VERSION"`
-	STARTUP_TIME     string `json:"STARTUP_TIME"`
-	STATUS           string `json:"STATUS"`
-	PARALLEL         string `json:"PARALLEL"`
-	THREAD_NO        string `json:"THREAD_NO"`
-	ARCHIVER         string `json:"ARCHIVER"`
+	INST_ID          string         `json:"INST_ID"`
+	INSTANCE_NUMBER  string         `json:"INSTANCE_NUMBER"`
+	INSTANCE_NAME    string         `json:"INSTANCE_NAME"`
+	HOST_NAME        string         `json:"HOST_NAME"`
+	VERSION          string         `json:"VERSION"`
+	STARTUP_TIME     string         `json:"STARTUP_TIME"`
+	STATUS           string         `json:"STATUS"`
+	PARALLEL         string         `json:"PARALLEL"`
+	THREAD_NO        string         `json:"THREAD_NO"`
+	ARCHIVER         string         `json:"ARCHIVER"`
 	LOG_SWITCH_WAIT  sql.NullString `json:"LOG_SWITCH_WAIT"`
-	LOGINS           string `json:"LOGINS"`
-	SHUTDOWN_PENDING string `json:"SHUTDOWN_PENDING"`
-	DATABASE_STATUS  string `json:"DATABASE_STATUS"`
-	INSTANCE_ROLE    string `json:"INSTANCE_ROLE"`
-	ACTIVE_STATE     string `json:"ACTIVE_STATE"`
-	BLOCKED          string `json:"BLOCKED"`
-	CON_ID           string `json:"CON_ID"`
-	INSTANCE_MODE    string `json:"INSTANCE_MODE"`
-	EDITION          string `json:"EDITION"`
+	LOGINS           string         `json:"LOGINS"`
+	SHUTDOWN_PENDING string         `json:"SHUTDOWN_PENDING"`
+	DATABASE_STATUS  string         `json:"DATABASE_STATUS"`
+	INSTANCE_ROLE    string         `json:"INSTANCE_ROLE"`
+	ACTIVE_STATE     string         `json:"ACTIVE_STATE"`
+	BLOCKED          string         `json:"BLOCKED"`
+	CON_ID           string         `json:"CON_ID"`
+	INSTANCE_MODE    string         `json:"INSTANCE_MODE"`
+	EDITION          string         `json:"EDITION"`
 	FAMILY           sql.NullString `json:"FAMILY"`
-	DATABASE_TYPE    string `json:"DATABASE_TYPE"`
+	DATABASE_TYPE    string         `json:"DATABASE_TYPE"`
 }
 
 func Init(connectionString string, zabbixHost string, zabbixPort int, hostName string) {
 	start := time.Now()
 	defer glog.Flush()
-	db, err := sql.Open("oci8", connectionString)
+	db, err := sql.Open("ora", connectionString)
 	if err != nil {
 		glog.Fatal("Connection Failed!", err)
 		return
@@ -62,7 +64,9 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	zabbixData := make(map[string]string)
 	for k, v := range queries {
 		//	zabbixData[k] = runQuery(v, db)
+		var rows *sql.Rows
 		rows, err := db.Query(v)
+		//glog.Info("zquery=", v)
 		if err != nil {
 			glog.Error("Error fetching addition", err)
 			return
@@ -70,9 +74,33 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 		defer rows.Close()
 
 		for rows.Next() {
+
 			var res string
-			rows.Scan(&res)
-			zabbixData[k] = res
+			err := rows.Scan(&res)
+			if err != nil {
+				glog.Info("ERR scan=", err)
+				var floatRes float64
+				err := rows.Scan(&floatRes)
+				if err != nil {
+					glog.Info("ERR scan float=", err)
+					var intRes int64
+					err := rows.Scan(&intRes)
+					if err != nil {
+						glog.Info("ERR scan int=", err)
+						zabbixData[k] = "0"
+					} else {
+						zabbixData[k] = fmt.Sprintf("%b", intRes)
+						glog.Info("zdata int key=", k, " data=", intRes)
+					}
+				} else {
+					zabbixData[k] = fmt.Sprintf("%f", floatRes)
+					glog.Info("zdata float key=", k, " data=", floatRes)
+				}
+			} else {
+				zabbixData[k] = res
+				glog.Info("zdata string key=", k, " data=", res)
+			}
+
 		}
 	}
 	if zabbixData["pool_dict_cache"] == "" {
