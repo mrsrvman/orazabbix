@@ -15,7 +15,7 @@ package main
 
 import (
 	"fmt"
-	"orazabbix/cmd"
+	"github.com/milamberspace/orazabbix/cmd"
 	"time"
 )
 
