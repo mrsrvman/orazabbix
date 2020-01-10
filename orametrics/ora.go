@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-
 	"github.com/golang/glog"
 	_ "gopkg.in/rana/ora.v4"
 )

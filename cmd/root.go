@@ -19,7 +19,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
-	"github.com/milamberspace/orazabbix/orametrics"
+	"github.com/mrsrvman/orazabbix/orametrics"
 	"os"
 	"strings"
 	goflag "flag"
