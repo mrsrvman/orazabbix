@@ -18,10 +18,8 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
 	"github.com/mrsrvman/orazabbix/orametrics"
 	"os"
-	"strings"
 	goflag "flag"
 )
 
@@ -45,11 +43,7 @@ var RootCmd = &cobra.Command{
 
 func runCmd(cmd *cobra.Command, args []string) {
 	goflag.CommandLine.Parse([]string{})
-	//if versionFlag := getFlagBoolPtr(cmd, "version"); versionFlag != nil {
-	//	fmt.Println("OraZabbix v1.0.0")
-	//} else {
-		orametrics.Init(connectionString, zabbixHost, zabbixPort, hostName)
-	//}
+	orametrics.Init(connectionString, zabbixHost, zabbixPort, hostName)
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -78,25 +72,6 @@ func init() {
 	RootCmd.Flags().IntVarP(&zabbixPort, "port", "p", 10051, "Zabbix Server/Proxy Port")
 	RootCmd.Flags().StringVarP(&hostName, "host", "H", "server1", "Hostname of the monitored object in zabbix server")
 	RootCmd.PersistentFlags().AddGoFlagSet(goflag.CommandLine)
-}
-
-func getFlagBoolPtr(cmd *cobra.Command, flag string) *bool {
-	f := cmd.Flags().Lookup(flag)
-	if f == nil {
-		log.Printf("Flag accessed but not defined for command %s: %s", cmd.Name(), flag)
-	}
-	// Check if flag was not set at all.
-	if !f.Changed && f.DefValue == f.Value.String() {
-		return nil
-	}
-	var ret bool
-	// Caseless compare.
-	if strings.ToLower(f.Value.String()) == "true" {
-		ret = true
-	} else {
-		ret = false
-	}
-	return &ret
 }
 
 // initConfig reads in config file and ENV variables if set.
