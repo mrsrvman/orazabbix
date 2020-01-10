@@ -1,4 +1,4 @@
-module github.com/milamberspace/orazabbix
+module github.com/mrsrvman/orazabbix
 
 go 1.11
 
