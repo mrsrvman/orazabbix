@@ -56,16 +56,15 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize()
+	cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	//RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.orazabbix.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.orazabbix.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	//RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	//RootCmd.Flags().BoolP("version", "v", false, "Prints version information")
 	RootCmd.Flags().StringVarP(&connectionString, "connectionstring", "c", "system/oracle@localhost:1521/xe", "ConnectionString to the Database, Format: username/password@ip:port/sid")
 	RootCmd.Flags().StringVarP(&zabbixHost, "zabbix", "z", "localhost", "Zabbix Server/Proxy Hostname or IP address")

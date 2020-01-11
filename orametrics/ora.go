@@ -73,7 +73,6 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 		defer rows.Close()
 
 		for rows.Next() {
-
 			var res string
 			err := rows.Scan(&res)
 			if err != nil {
@@ -112,7 +111,6 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 		zabbixData["pool_sql_area"] = "0"
 	}
 	//glog.Info("zabbixData:", zabbixData)
-	//discoveryData := make(map[string][]string)
 	discoveryData := make(map[string]string)
 	for k, v := range discoveryQueries {
 		if k == "tablespaces" {
@@ -271,7 +269,7 @@ func runQuery(query string, db *sql.DB) string {
 func runTsBytesDiscoveryQuery(query string, db *sql.DB) []tsBytes {
 	rows, err := db.Query(query)
 	if err != nil {
-		glog.Error("Error fetching addition", err)
+		glog.Error("Error fetching addition", err, query)
 		var er []string
 		er = append(er, err.Error())
 		//return er
