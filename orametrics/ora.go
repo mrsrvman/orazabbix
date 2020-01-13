@@ -51,13 +51,13 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	defer glog.Flush()
 	db, err := sql.Open("ora", connectionString)
 	if err != nil {
-		glog.Fatal("Connection Failed!", err)
+		glog.Fatal("Connection Failed! ", err)
 		return
 	}
 	defer db.Close()
 
 	if err = db.Ping(); err != nil {
-		glog.Fatal("Error connecting to the database:", err)
+		glog.Fatal("Error connecting to the database: ", err)
 		return
 	}
 	zabbixData := make(map[string]string)
@@ -67,7 +67,7 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 		rows, err := db.Query(v)
 		//glog.Info("zquery=", v)
 		if err != nil {
-			glog.Error("Error fetching addition", err)
+			glog.Error("Error fetching addition: ", err)
 			return
 		}
 		defer rows.Close()
@@ -238,7 +238,7 @@ func runDiscoveryQuery(query string, db *sql.DB) (res []string, err error) {
 	var result []string
 	rows, err := db.Query(query)
 	if err != nil {
-		glog.Error("Error fetching addition", err, query)
+		glog.Error("Error fetching addition: ", err, query)
 		return result,err
 	}
 	defer rows.Close()
@@ -256,7 +256,7 @@ func runQuery(query string, db *sql.DB) (res string, err error) {
 	var result string
 	rows, err := db.Query(query)
 	if err != nil {
-		glog.Error("Error fetching addition", err, query)
+		glog.Error("Error fetching addition: ", err, query)
 		return "",err
 	}
 	defer rows.Close()
@@ -272,7 +272,7 @@ func runTsBytesDiscoveryQuery(query string, db *sql.DB) (res []tsBytes, err erro
 	var result []tsBytes
 	rows, err := db.Query(query)
 	if err != nil {
-		glog.Error("Error fetching addition", err, query)
+		glog.Error("Error fetching addition: ", err, query)
 		var er []string
 		er = append(er, err.Error())
 		return result,err
@@ -292,7 +292,7 @@ func runDiskGroupsMetrics(query string, db *sql.DB) (res []diskgroups, err error
 	var result []diskgroups
 	rows, err := db.Query(query)
 	if err != nil {
-		glog.Error("Error fetching addition", err, query)
+		glog.Error("Error fetching addition: ", err, query)
 		return result,err
 	}
 	defer rows.Close()
@@ -310,7 +310,7 @@ func runInstanceMetrics(query string, db *sql.DB) (res []instance, err error) {
 	var result []instance
 	rows, err := db.Query(query)
 	if err != nil {
-		glog.Error("Error fetching addition", err, query)
+		glog.Error("Error fetching addition: ", err, query)
 		return result,err
 	}
 	defer rows.Close()

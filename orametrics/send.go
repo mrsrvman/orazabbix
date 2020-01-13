@@ -1,7 +1,7 @@
 package orametrics
 
 import (
-	//	"fmt"
+	_ "fmt"
 	. "github.com/blacked/go-zabbix"
 	"time"
 )
