@@ -37,6 +37,10 @@ Flags:
   
   ## Docker
   Or Use provided Dockerfile to build an image and monitor remotely.
+  Put bases for monitoring in docker/bases.txt
+  ```
+  -z <zabbix_server_host> -c <orazabbix_oracle_user>/<oracle_password>@<oracle_host>:1521/<sid> -H <zabbix_monitored_host_name>
+  ```
   
 ## Features:
 - Autodiscovery for tablespaces
