@@ -65,10 +65,10 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 		//	zabbixData[k] = runQuery(v, db)
 		var rows *sql.Rows
 		rows, err := db.Query(v)
-		//glog.Info("zquery=", v)
 		if err != nil {
+			glog.Info("zquery=", v)
 			glog.Error("Error fetching addition: ", err)
-			return
+			continue
 		}
 		defer rows.Close()
 
@@ -233,8 +233,8 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	//	}
 	//	fmt.Println(string(tes))
 }
-func runDiscoveryQuery(query string, db *sql.DB) (res []string, err error) {
 
+func runDiscoveryQuery(query string, db *sql.DB) (res []string, err error) {
 	var result []string
 	rows, err := db.Query(query)
 	if err != nil {
@@ -252,7 +252,6 @@ func runDiscoveryQuery(query string, db *sql.DB) (res []string, err error) {
 }
 
 func runQuery(query string, db *sql.DB) (res string, err error) {
-
 	var result string
 	rows, err := db.Query(query)
 	if err != nil {
@@ -268,7 +267,6 @@ func runQuery(query string, db *sql.DB) (res string, err error) {
 }
 
 func runTsBytesDiscoveryQuery(query string, db *sql.DB) (res []tsBytes, err error) {
-
 	var result []tsBytes
 	rows, err := db.Query(query)
 	if err != nil {
@@ -288,7 +286,6 @@ func runTsBytesDiscoveryQuery(query string, db *sql.DB) (res []tsBytes, err erro
 }
 
 func runDiskGroupsMetrics(query string, db *sql.DB) (res []diskgroups, err error) {
-
 	var result []diskgroups
 	rows, err := db.Query(query)
 	if err != nil {
@@ -306,7 +303,6 @@ func runDiskGroupsMetrics(query string, db *sql.DB) (res []diskgroups, err error
 }
 
 func runInstanceMetrics(query string, db *sql.DB) (res []instance, err error) {
-
 	var result []instance
 	rows, err := db.Query(query)
 	if err != nil {
