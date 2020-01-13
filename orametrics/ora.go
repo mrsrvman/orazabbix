@@ -162,9 +162,6 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 			discoveryData[k] = fixd
 		}
 	}
-	//j := discoveryData["tablespaces"]
-	//d := discoveryData["diskgroups"]
-
 	ts_usage_bytes, _ := runTsBytesDiscoveryQuery(ts_usage_bytes, db)
 	ts_maxsize_bytes, _ := runTsBytesDiscoveryQuery(ts_maxsize_bytes, db)
 	ts_usage_pct, _ := runTsBytesDiscoveryQuery(ts_usage_pct, db)
@@ -225,6 +222,8 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	//send(discoveryMetrics, zabbixHost, zabbixPort, hostName)
 	glog.Info("zabbixData Combined: ", zabbixData)
 	send(zabbixData, zabbixHost, zabbixPort, hostName)
+	//j := discoveryData["tablespaces"]
+	//d := discoveryData["diskgroups"]
 	//sendD(j,"tablespaces", zabbixHost, zabbixPort, hostName)
 	//sendD(d,"diskgroups",zabbixHost,zabbixPort,hostName)
 	glog.Info(time.Since(start))
