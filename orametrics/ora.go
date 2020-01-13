@@ -9,6 +9,7 @@ import (
 	"github.com/golang/glog"
 	_ "github.com/mattn/go-oci8"
 	//_ "gopkg.in/rana/ora.v4"
+	"strings"
 )
 
 type tsBytes struct {
@@ -102,7 +103,7 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 					glog.Info("zdata float key=", k, " data=", floatRes)
 				}
 			} else {
-				zabbixData[k] = res
+				zabbixData[k] = strings.TrimSpace(res)
 				glog.Info("zdata string key=", k, " data=", res)
 			}
 
@@ -176,13 +177,13 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	instanceMetrics, _ := runInstanceMetrics(instance_metrics, db)
 	discoveryMetrics := make(map[string]string)
 	for _, v := range ts_usage_bytes {
-		discoveryMetrics[`ts_usage_bytes[`+v.Ts+`]`] = v.Bytes
+		discoveryMetrics[`ts_usage_bytes[`+v.Ts+`]`] = strings.TrimSpace(v.Bytes)
 	}
 	for _, v := range ts_maxsize_bytes {
-		discoveryMetrics[`ts_maxsize_bytes[`+v.Ts+`]`] = v.Bytes
+		discoveryMetrics[`ts_maxsize_bytes[`+v.Ts+`]`] = strings.TrimSpace(v.Bytes)
 	}
 	for _, v := range ts_usage_pct {
-		discoveryMetrics[`ts_usage_pct[`+v.Ts+`]`] = v.Bytes
+		discoveryMetrics[`ts_usage_pct[`+v.Ts+`]`] = strings.TrimSpace(v.Bytes)
 	}
 	for _, v := range diskGroupsMetrics {
 		bytes, _ := strconv.Atoi(v.UsableFileMB)
@@ -227,7 +228,7 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 		zabbixData[k] = v
 	}
 	//send(discoveryMetrics, zabbixHost, zabbixPort, hostName)
-	//glog.Info("zabbixData Combined: ", zabbixData)
+	glog.Info("zabbixData Combined: ", zabbixData)
 	send(zabbixData, zabbixHost, zabbixPort, hostName)
 	//j := discoveryData["tablespaces"]
 	//d := discoveryData["diskgroups"]
@@ -253,7 +254,7 @@ func runDiscoveryQuery(query string, db *sql.DB) (res []string, err error) {
 	for rows.Next() {
 		var res string
 		rows.Scan(&res)
-		result = append(result, res)
+		result = append(result, strings.TrimSpace(res))
 	}
 	return result,nil
 }
@@ -268,9 +269,9 @@ func runQuery(query string, db *sql.DB) (res string, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		rows.Scan(&res)
+		rows.Scan(&result)
 	}
-	return result,nil
+	return  strings.TrimSpace(result),nil
 }
 
 func runTsBytesDiscoveryQuery(query string, db *sql.DB) (res []tsBytes, err error) {
