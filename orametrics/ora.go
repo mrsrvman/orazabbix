@@ -240,7 +240,8 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	    //sendD(j,"tablespaces", zabbixHost, zabbixPort, hostName)
 	    //sendD(d,"diskgroups",zabbixHost,zabbixPort,hostName)
 	}else{
-		tes, err := json.MarshalIndent(discoveryMetrics, "", " ")
+//		tes, err := json.MarshalIndent(discoveryMetrics, "", " ")
+		tes, err := json.MarshalIndent(zabbixData, "", " ")
 		if err != nil {
 			fmt.Println(err)
 		}
