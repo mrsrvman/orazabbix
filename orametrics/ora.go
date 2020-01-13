@@ -2,7 +2,7 @@ package orametrics
 
 import (
 	"database/sql"
-	//"encoding/json"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -10,6 +10,8 @@ import (
 	_ "github.com/mattn/go-oci8"
 	//_ "gopkg.in/rana/ora.v4"
 	"strings"
+	"os"
+	"io/ioutil"
 )
 
 type tsBytes struct {
@@ -48,7 +50,9 @@ type instance struct {
 	DATABASE_TYPE    string         `json:"DATABASE_TYPE"`
 }
 
-func Init(connectionString string, zabbixHost string, zabbixPort int, hostName string) {
+var fileName string = "/tmp/orazabbix.json"
+
+func Init(connectionString string, zabbixHost string, zabbixPort int, hostName string,localFile bool) {
 	start := time.Now()
 	defer glog.Flush()
 	db, err := sql.Open("oci8", connectionString)
@@ -228,18 +232,34 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 		zabbixData[k] = v
 	}
 	//send(discoveryMetrics, zabbixHost, zabbixPort, hostName)
-	glog.Info("zabbixData Combined: ", zabbixData)
-	send(zabbixData, zabbixHost, zabbixPort, hostName)
-	//j := discoveryData["tablespaces"]
-	//d := discoveryData["diskgroups"]
-	//sendD(j,"tablespaces", zabbixHost, zabbixPort, hostName)
-	//sendD(d,"diskgroups",zabbixHost,zabbixPort,hostName)
+	if !localFile {
+	    glog.Info("zabbixData Combined: ", zabbixData)
+	    send(zabbixData, zabbixHost, zabbixPort, hostName)
+	    //j := discoveryData["tablespaces"]
+	    //d := discoveryData["diskgroups"]
+	    //sendD(j,"tablespaces", zabbixHost, zabbixPort, hostName)
+	    //sendD(d,"diskgroups",zabbixHost,zabbixPort,hostName)
+	}else{
+		tes, err := json.MarshalIndent(discoveryMetrics, "", " ")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(string(tes))
+		writeFile (fileName,tes)
+	}
 	glog.Info(time.Since(start))
-	//	tes, err := json.Marshal(discoveryMetrics)
-	//	if err != nil {
-	//		fmt.Println(err)
-	//	}
-	//	fmt.Println(string(tes))
+}
+
+func writeFile (filename string, js []byte) (err error) {
+
+    err = ioutil.WriteFile(filename+".tmp", js, 0644)
+    if err != nil {
+	return err
+    }
+    if err = os.Rename(filename+".tmp", filename); err != nil {
+	return err
+    }
+    return nil
 }
 
 func runDiscoveryQuery(query string, db *sql.DB) (res []string, err error) {

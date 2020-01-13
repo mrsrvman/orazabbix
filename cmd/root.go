@@ -29,6 +29,7 @@ var (
 	zabbixHost       string
 	zabbixPort       int
 	hostName         string
+	localFile	bool
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -43,7 +44,7 @@ var RootCmd = &cobra.Command{
 
 func runCmd(cmd *cobra.Command, args []string) {
 	goflag.CommandLine.Parse([]string{})
-	orametrics.Init(connectionString, zabbixHost, zabbixPort, hostName)
+	orametrics.Init(connectionString, zabbixHost, zabbixPort, hostName,localFile)
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -70,6 +71,7 @@ func init() {
 	RootCmd.Flags().StringVarP(&zabbixHost, "zabbix", "z", "localhost", "Zabbix Server/Proxy Hostname or IP address")
 	RootCmd.Flags().IntVarP(&zabbixPort, "port", "p", 10051, "Zabbix Server/Proxy Port")
 	RootCmd.Flags().StringVarP(&hostName, "host", "H", "server1", "Hostname of the monitored object in zabbix server")
+	RootCmd.Flags().BoolVarP(&localFile, "local", "l", false, "Do not send information to the server. Use local file")
 	RootCmd.PersistentFlags().AddGoFlagSet(goflag.CommandLine)
 }
 
