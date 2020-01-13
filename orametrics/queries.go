@@ -171,6 +171,10 @@ var discoveryQueries = map[string]string{
 }
 
 var (
+    preset_role1 string = "set role rias_monitoring identified by role_monitor1NG"
+)
+
+var (
 	ts_usage_pct      string = "select tablespace_name ts, round(used_percent, 5) pct from dba_tablespace_usage_metrics"
 	ts_usage_bytes    string = "select ta.tablespace_name as ts, ta.used_space * tb.block_size as bytes from dba_tablespace_usage_metrics ta join dba_tablespaces tb on ta.tablespace_name = tb.tablespace_name"
 	ts_maxsize_bytes string = "SELECT TABLESPACE_NAME as ts, TO_CHAR(sum(bytes),'99999999999999') as bytes FROM dba_data_files GROUP BY TABLESPACE_NAME"

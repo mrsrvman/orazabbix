@@ -2,12 +2,13 @@ package orametrics
 
 import (
 	"database/sql"
-	//	"encoding/json"
+	//"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
 	"github.com/golang/glog"
-	_ "gopkg.in/rana/ora.v4"
+	_ "github.com/mattn/go-oci8"
+	//_ "gopkg.in/rana/ora.v4"
 )
 
 type tsBytes struct {
@@ -49,7 +50,7 @@ type instance struct {
 func Init(connectionString string, zabbixHost string, zabbixPort int, hostName string) {
 	start := time.Now()
 	defer glog.Flush()
-	db, err := sql.Open("ora", connectionString)
+	db, err := sql.Open("oci8", connectionString)
 	if err != nil {
 		glog.Fatal("Connection Failed! ", err)
 		return
@@ -60,6 +61,12 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 		glog.Fatal("Error connecting to the database: ", err)
 		return
 	}
+
+	_ , err = db.Exec(preset_role1)
+	if err != nil {
+		glog.Error("Error set role: ", err)
+	}
+
 	zabbixData := make(map[string]string)
 	for k, v := range queries {
 		//	zabbixData[k] = runQuery(v, db)
@@ -220,7 +227,7 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 		zabbixData[k] = v
 	}
 	//send(discoveryMetrics, zabbixHost, zabbixPort, hostName)
-	glog.Info("zabbixData Combined: ", zabbixData)
+	//glog.Info("zabbixData Combined: ", zabbixData)
 	send(zabbixData, zabbixHost, zabbixPort, hostName)
 	//j := discoveryData["tablespaces"]
 	//d := discoveryData["diskgroups"]
