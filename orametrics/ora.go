@@ -52,9 +52,11 @@ type instance struct {
 
 var fileName string = "/tmp/orazabbix.json"
 
-func Init(connectionString string, zabbixHost string, zabbixPort int, hostName string,localFile bool) {
+func Init(connectionString string, zabbixHost string, zabbixPort int, hostName string, localFile bool, useRAC bool) {
+	var query string
 	start := time.Now()
 	defer glog.Flush()
+
 	db, err := sql.Open("oci8", connectionString)
 	if err != nil {
 		glog.Fatal("Connection Failed! ", err)
@@ -75,10 +77,11 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	zabbixData := make(map[string]string)
 	for k, v := range queries {
 		//	zabbixData[k] = runQuery(v, db)
+		query = convertQuery(v,useRAC)
 		var rows *sql.Rows
-		rows, err := db.Query(v)
+		rows, err := db.Query(query)
 		if err != nil {
-			glog.Info("zquery=", v)
+			glog.Info("zquery=", query)
 			glog.Error("Error fetching addition: ", err)
 			continue
 		}
@@ -125,8 +128,10 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	//glog.Info("zabbixData:", zabbixData)
 	discoveryData := make(map[string]string)
 	for k, v := range discoveryQueries {
+		query = convertQuery(v,useRAC)
+		glog.Info("query=", query)
 		if k == "tablespaces" {
-			result, _ := runDiscoveryQuery(v, db)
+			result, _ := runDiscoveryQuery(query, db)
 			var fix string = "{\"data\":["
 			count := 1
 			len := len(result)
@@ -142,7 +147,7 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 			discoveryData[k] = fix
 		}
 		if k == "diskgroups" {
-			resultd, _ := runDiscoveryQuery(v, db)
+			resultd, _ := runDiscoveryQuery(query, db)
 			var fixd string = "{\"data\":["
 			countd := 1
 			lend := len(resultd)
@@ -158,7 +163,7 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 			discoveryData[k] = fixd
 		}
 		if k == "instances" {
-			resultI, _ := runDiscoveryQuery(v, db)
+			resultI, _ := runDiscoveryQuery(query, db)
 			var fixd string = "{\"data\":["
 			countI := 1
 			lend := len(resultI)
@@ -174,11 +179,11 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 			discoveryData[k] = fixd
 		}
 	}
-	ts_usage_bytes, _ := runTsBytesDiscoveryQuery(ts_usage_bytes, db)
-	ts_maxsize_bytes, _ := runTsBytesDiscoveryQuery(ts_maxsize_bytes, db)
-	ts_usage_pct, _ := runTsBytesDiscoveryQuery(ts_usage_pct, db)
-	diskGroupsMetrics, _ := runDiskGroupsMetrics(diskgroup_metrics, db)
-	instanceMetrics, _ := runInstanceMetrics(instance_metrics, db)
+	ts_usage_bytes, _ := runTsBytesDiscoveryQuery(convertQuery(ts_usage_bytes,useRAC), db)
+	ts_maxsize_bytes, _ := runTsBytesDiscoveryQuery(convertQuery(ts_maxsize_bytes,useRAC), db)
+	ts_usage_pct, _ := runTsBytesDiscoveryQuery(convertQuery(ts_usage_pct,useRAC), db)
+	diskGroupsMetrics, _ := runDiskGroupsMetrics(convertQuery(diskgroup_metrics,useRAC), db)
+	instanceMetrics, _ := runInstanceMetrics(convertQuery(instance_metrics,useRAC), db)
 	discoveryMetrics := make(map[string]string)
 	for _, v := range ts_usage_bytes {
 		discoveryMetrics[`ts_usage_bytes[`+v.Ts+`]`] = strings.TrimSpace(v.Bytes)
@@ -352,4 +357,18 @@ func runInstanceMetrics(query string, db *sql.DB) (res []instance, err error) {
 		}
 	}
 	return result,nil
+}
+
+func convertQuery(v string,useRAC bool) string{
+	var query string = v
+	result := strings.Split(v, "%sv$")
+	if len(result) == 1 {
+	    return v
+	}
+	if useRAC {
+		query = strings.Join(result, "gv$")
+	}else{
+		query = strings.Join(result,"v$")
+	}
+	return query
 }
