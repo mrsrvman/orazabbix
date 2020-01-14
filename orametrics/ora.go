@@ -246,7 +246,6 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	for k, v := range discoveryData {
 		zabbixData[k] = v
 	}
-	//send(discoveryMetrics, zabbixHost, zabbixPort, hostName)
 	if !localFile {
 	    glog.Info("zabbixData Combined: ", zabbixData)
 	    send(zabbixData, zabbixHost, zabbixPort, hostName)
@@ -255,7 +254,6 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	    //sendD(j,"tablespaces", zabbixHost, zabbixPort, hostName)
 	    //sendD(d,"diskgroups",zabbixHost,zabbixPort,hostName)
 	}else{
-//		tes, err := json.MarshalIndent(discoveryMetrics, "", " ")
 		tes, err := json.MarshalIndent(zabbixData, "", " ")
 		if err != nil {
 			fmt.Println(err)
@@ -315,8 +313,6 @@ func runTsBytesDiscoveryQuery(query string, db *sql.DB) (res []tsBytes, err erro
 	rows, err := db.Query(query)
 	if err != nil {
 		glog.Error("Error fetching addition: ", err, query)
-		var er []string
-		er = append(er, err.Error())
 		return result,err
 	}
 	defer rows.Close()
