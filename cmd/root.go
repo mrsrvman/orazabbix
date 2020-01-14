@@ -73,7 +73,7 @@ func init() {
 	RootCmd.Flags().IntVarP(&zabbixPort, "port", "p", 10051, "Zabbix Server/Proxy Port")
 	RootCmd.Flags().StringVarP(&hostName, "host", "H", "server1", "Hostname of the monitored object in zabbix server")
 	RootCmd.Flags().BoolVarP(&localFile, "local", "l", false, "Do not send information to the server. Use local file")
-	RootCmd.Flags().BoolVarP(&useRAC, "RAC", "R", false, "Do not send information to the server. Use local file")
+	RootCmd.Flags().BoolVarP(&useRAC, "RAC", "R", false, "Query for RAC configuration")
 	RootCmd.PersistentFlags().AddGoFlagSet(goflag.CommandLine)
 }
 

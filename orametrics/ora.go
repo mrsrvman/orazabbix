@@ -77,6 +77,20 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 	zabbixData := make(map[string]string)
 	for k, v := range queries {
 		//	zabbixData[k] = runQuery(v, db)
+		if !useRAC{
+		    switch k {
+			case "waits_sqlnet":
+			    glog.Info("Skipping query for non-RAC")
+			    continue
+			case "blocking_sessions":
+			    glog.Info("Skipping query for non-RAC")
+			    continue
+			case "blocking_sessions_full":
+			    glog.Info("Skipping query for non-RAC")
+			    continue
+			default:
+		    }
+		}
 		query = convertQuery(v,useRAC)
 		var rows *sql.Rows
 		rows, err := db.Query(query)
@@ -202,7 +216,7 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 		discoveryMetrics[`offline_disks[`+v.Dg+`]`] = v.OfflineDisks
 	}
 	for _, v := range instanceMetrics {
-		discoveryMetrics[`INST_ID[`+v.INSTANCE_NAME+`]`] = v.INST_ID
+		discoveryMetrics[`INST_ID[`+v.INSTANCE_NAME+`]`] = v.INSTANCE_NUMBER
 		discoveryMetrics[`INSTANCE_NUMBER[`+v.INSTANCE_NAME+`]`] = v.INSTANCE_NUMBER
 		discoveryMetrics[`HOST_NAME[`+v.INSTANCE_NAME+`]`] = v.HOST_NAME
 		discoveryMetrics[`VERSION[`+v.INSTANCE_NAME+`]`] = v.VERSION
@@ -347,7 +361,8 @@ func runInstanceMetrics(query string, db *sql.DB) (res []instance, err error) {
 
 	for rows.Next() {
 		var res instance
-		err := rows.Scan(&res.INST_ID, &res.INSTANCE_NUMBER, &res.INSTANCE_NAME, &res.HOST_NAME, &res.VERSION, &res.STARTUP_TIME,
+//		err := rows.Scan(&res.INST_ID, &res.INSTANCE_NUMBER, &res.INSTANCE_NAME, &res.HOST_NAME, &res.VERSION, &res.STARTUP_TIME,
+		err := rows.Scan(&res.INSTANCE_NUMBER, &res.INSTANCE_NAME, &res.HOST_NAME, &res.VERSION, &res.STARTUP_TIME,
 			&res.STATUS, &res.PARALLEL, &res.THREAD_NO, &res.ARCHIVER, &res.LOG_SWITCH_WAIT, &res.LOGINS,
 			&res.SHUTDOWN_PENDING, &res.DATABASE_STATUS, &res.INSTANCE_ROLE, &res.ACTIVE_STATE, &res.BLOCKED, &res.CON_ID,
 			&res.INSTANCE_MODE, &res.EDITION, &res.FAMILY, &res.DATABASE_TYPE)
