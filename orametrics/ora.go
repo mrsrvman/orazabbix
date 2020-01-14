@@ -105,15 +105,12 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 			var res string
 			err := rows.Scan(&res)
 			if err != nil {
-				glog.Info("ERR scan=", err)
 				var floatRes float64
 				err := rows.Scan(&floatRes)
 				if err != nil {
-					glog.Info("ERR scan float=", err)
 					var intRes int64
 					err := rows.Scan(&intRes)
 					if err != nil {
-						glog.Info("ERR scan int=", err)
 						zabbixData[k] = "0"
 					} else {
 						zabbixData[k] = fmt.Sprintf("%b", intRes)
@@ -127,7 +124,6 @@ func Init(connectionString string, zabbixHost string, zabbixPort int, hostName s
 				zabbixData[k] = strings.TrimSpace(res)
 				glog.Info("zdata string key=", k, " data=", res)
 			}
-
 		}
 	}
 	if zabbixData["pool_dict_cache"] == "" {
